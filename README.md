@@ -1,67 +1,65 @@
-Task-0: CI/CD Pipeline with Jenkins
+# Jenkins CI/CD Pipeline with SonarQube Analysis
 
-This repository contains a `Jenkinsfile` that defines an automated Continuous Integration and Continuous Deployment (CI/CD) pipeline. The pipeline is designed to check out code, perform static code analysis, and deploy a web application to a target server.
+This repository contains a Jenkins declarative pipeline that performs:
+- Git source code checkout from a `uat` branch
+- Static code analysis using SonarQube
+- Deployment of HTML frontend to a remote server via SSH
+- Nginx service restart post-deployment
 
-## Pipeline Overview
+##  Project Structure
 
-This declarative Jenkins pipeline automates the following key processes:
+##  Features
 
-1.  **Checkout**: Pulls the latest code from a specified branch of a Git repository.
-2.  **Code Quality Analysis**: Integrates with a SonarQube server to perform static code analysis, ensuring code quality and identifying potential bugs or vulnerabilities.
-3.  **Deployment**: Securely deploys the application files to a remote server using SSH and restarts the web server (Nginx) to apply the changes.
+-  CI/CD integration using Jenkins
+-  SonarQube static code analysis
+-  SSH-based secure deployment
+-  Environment variables & credentials secured via Jenkins Secrets
+-  Nginx auto-restart for frontend service
 
-### Pipeline Stages
+## Prerequisites
 
-The pipeline is broken down into the following stages:
+Ensure the following are set up before using the pipeline:
 
-| Stage                | Description                                                                                                                              |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **Checkout**         | Clones the `uat` branch from the specified Git repository using pre-configured GitHub credentials.                                       |
-| **SonarQube Analysis** | Executes the SonarQube scanner to analyze the source code. The results are sent to the SonarQube server for review.                     |
-| **Deploy HTML**      | Uses `sshagent` to securely connect to the deployment server, copies all repository files, and then restarts the Nginx service.          |
+### On Jenkins:
+- Jenkins installed and running
+- `sshagent` plugin installed
+- SonarQube scanner installed (named `sonarqube`)
+- Jenkins credentials:
+  - `ssh-snapcut` (SSH private key)
+  - `Github` (GitHub token or credentials)
 
-The pipeline also includes a `post` block to provide feedback on whether the deployment succeeded or failed.
+### In Jenkins Secrets:
+| Variable             | Description                           |
+|----------------------|---------------------------------------|
+| `DEPLOY_SERVER`      | IP or domain of remote deployment server |
+| `DEPLOY_USER`        | Username on deployment server         |
+| `DEPLOY_PATH`        | Remote path to deploy HTML            |
+| `PROJECT_KEY`        | SonarQube project key                 |
+| `HOST_URL`           | SonarQube server URL                  |
+| `LOGIN_TOKEN`        | SonarQube access token                |
+| `GITHUB_URL`         | Git repository HTTPS/SSH URL          |
 
----
+##  Pipeline Stages
 
-## Prerequisites and Configuration
+### 1. Checkout
+Checks out code from the `uat` branch.
 
-To successfully run this pipeline, the Jenkins environment must be configured with the following:
+### 2. SonarQube Analysis
+Runs static code analysis on the codebase using SonarQube CLI scanner.
 
-#### 1. Jenkins Plugins:
-*   Pipeline
-*   Git Plugin
-*   SSH Agent Plugin (`sshagent`)
-*   SonarQube Scanner for Jenkins Plugin
+### 3. HTML Deployment
+- Deploys updated frontend files to the specified server.
+- Restarts Nginx service after copying files.
 
-#### 2. Jenkins Tools:
-*   A SonarQube Scanner installation configured with the name `sonarqube`.
+##  Security Notes
 
-#### 3. Jenkins Credentials:
-*   `Github`: A credential (e.g., username/password or Personal Access Token) with access to the source code repository.
-*   `ssh-snapcut`: An SSH private key credential for securely accessing the deployment server.
+- Secrets and credentials are not stored in code.
+- All sensitive data is handled via Jenkins credentials and environment variables.
 
-#### 4. Jenkins Global Variables & Secrets:
-This pipeline relies on variables and secrets managed by Jenkins to avoid hardcoding sensitive information.
+## Sample Output
+<img width="1362" height="628" alt="Screenshot from 2025-07-25 16-21-59" src="https://github.com/user-attachments/assets/6b190e51-5fdf-43c8-997a-121c37be80fb" />
 
-*   **Secrets (`credentials` block):**
-    *   `DEPLOY_SERVER`: The IP address or hostname of the deployment server.
-    *   `DEPLOY_USER`: The SSH user for the deployment server.
-    *   `PROJECT_KEY`: The project key for SonarQube.
-    *   `HOST_URL`: The URL of the SonarQube server.
-    *   `LOGIN_TOKEN`: An authentication token for the SonarQube server.
-*   **Variables (`vars` block):**
-    *   `DEPLOY_PATH`: The absolute path on the deployment server where files should be copied (e.g., `/var/www/html`).
-    *   `GITHUB_URL`: The full Git URL of the source code repository to be checked out.
+<img width="1348" height="611" alt="Screenshot from 2025-07-25 16-19-17" src="https://github.com/user-attachments/assets/a1c2dd05-1f49-4215-8df6-b7e5fb17e117" />
 
----
 
-## How to Use
 
-1.  Ensure all prerequisites listed above are configured in your Jenkins instance.
-2.  Create a new **Pipeline** job in Jenkins.
-3.  In the "Pipeline" section of the job configuration, select **"Pipeline script from SCM"**.
-4.  Choose **"Git"** as the SCM.
-5.  Enter the URL of this repository (`https://github.com/your-username/Task-0.git`).
-6.  Ensure the "Branch Specifier" is set to `*/main` or the branch where this `Jenkinsfile` resides.
-7.  Save the job and click **"Build Now"** to run the pipeline.
