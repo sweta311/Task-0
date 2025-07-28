@@ -62,4 +62,14 @@ Runs static code analysis on the codebase using SonarQube CLI scanner.
 <img width="1348" height="611" alt="Screenshot from 2025-07-25 16-19-17" src="https://github.com/user-attachments/assets/a1c2dd05-1f49-4215-8df6-b7e5fb17e117" />
 
 
+## Author
+
+**Sweta Gupta**
+
+---
+
+## Tags
+
+`jenkins` `ci/cd` `sonarqube` `nginx` `deployment` `devops-pipeline`
+
 
